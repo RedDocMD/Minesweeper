@@ -96,4 +96,16 @@ public class MinesweeperBoardData {
         if (board[row][column] == Element.COVERED_EMPTY) board[row][column] = Element.UNCOVERED_EMPTY;
         else if (board[row][column] == Element.COVERED_MINE) board[row][column] = Element.UNCOVERED_MINE;
     }
+
+    @Override
+    public String toString() {
+        var out = new StringBuilder();
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < columns; j++) {
+                out.append(counterBoard[i][j]).append(" ");
+            }
+            out.append('\n');
+        }
+        return out.toString();
+    }
 }
