@@ -5,7 +5,7 @@ import com.deep.minesweeper.data.MinesweeperBoardData;
 import javax.swing.*;
 import java.awt.*;
 
-public class MinesweeperBoard extends JComponent {
+public class MinesweeperBoard extends JPanel {
     private final MinesweeperBoardData boardData;
     private final JButton[][] cells;
     private final JPanel backPanel;
@@ -27,9 +27,10 @@ public class MinesweeperBoard extends JComponent {
         backPanel.setLayout(new GridLayout(rows, columns));
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
-                cells[i][j] = new JButton();
+                cells[i][j] = new JButton("1");
                 backPanel.add(cells[i][j]);
             }
         }
+        add(backPanel);
     }
 }
