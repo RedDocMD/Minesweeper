@@ -17,7 +17,7 @@ public class MinesweeperFrame extends JFrame {
     private void initComponents() {
         add(this.board, BorderLayout.CENTER);
         setResizable(false);
-        setTitle("Minesweeper");
+        setTitle("Minesweeper AI");
         pack();
     }
 }

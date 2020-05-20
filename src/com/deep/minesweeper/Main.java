@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-        var boardData = new MinesweeperBoardData(10, 10, 8);
+        var boardData = new MinesweeperBoardData(10, 10, 16);
         System.out.println(boardData.toString());
         EventQueue.invokeLater(() -> {
             var frame = new MinesweeperFrame(boardData);

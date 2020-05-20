@@ -38,7 +38,11 @@ public class MinesweeperBoard extends JPanel {
                         if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
                             // Click with no Ctrl
                             boardData.uncoverCell(cell.getRow(), cell.getColumn());
-                            cell.computeCellState(); // TODO: This will have to be fixed
+                            for (var i = 0; i < rows; i++) {
+                                for (var j = 0; j < columns; j++) {
+                                    cells[i][j].computeCellState();
+                                }
+                            }
                             // TODO: Update panel labels and uncover propagation
                         }
                     }

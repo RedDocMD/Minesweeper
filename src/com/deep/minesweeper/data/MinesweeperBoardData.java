@@ -1,8 +1,6 @@
 package com.deep.minesweeper.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MinesweeperBoardData {
     private final int columns;
@@ -53,6 +51,10 @@ public class MinesweeperBoardData {
         return neighbours;
     }
 
+    public List<Position> getNeighbours(Position pos) {
+        return getNeighbours(pos.getRow(), pos.getColumn());
+    }
+
     private void initializeBoard() {
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
@@ -72,7 +74,9 @@ public class MinesweeperBoardData {
                 var neighbours = getNeighbours(mineRow, mineColumn);
                 counterBoard[mineRow][mineColumn] = MINE_VALUE;
                 for (var neighbour : neighbours) {
-                    counterBoard[neighbour.getRow()][neighbour.getColumn()]++;
+                    if (board[neighbour.getRow()][neighbour.getColumn()] == Element.COVERED_EMPTY) {
+                        counterBoard[neighbour.getRow()][neighbour.getColumn()]++;
+                    }
                 }
             }
         }
@@ -93,8 +97,22 @@ public class MinesweeperBoardData {
     public void uncoverCell(int row, int column) {
         if (row < 0 || column < 0 || row >= rows || column >= columns)
             throw new IllegalArgumentException("Invalid position: Position outside board");
-        if (board[row][column] == Element.COVERED_EMPTY) board[row][column] = Element.UNCOVERED_EMPTY;
+        if (board[row][column] == Element.COVERED_EMPTY) {
+            board[row][column] = Element.UNCOVERED_EMPTY;
+            recursivelyUncover(new Position(row, column), new HashSet<>());
+        }
         else if (board[row][column] == Element.COVERED_MINE) board[row][column] = Element.UNCOVERED_MINE;
+    }
+
+    private void recursivelyUncover(Position pos, Set<Position> done) {
+        if (counterBoard[pos.getRow()][pos.getColumn()] == 0 && !done.contains(pos)) {
+            done.add(pos);
+            var neighbours = getNeighbours(pos);
+            for (var neighbour : neighbours) {
+                recursivelyUncover(neighbour, done);
+            }
+        }
+        board[pos.getRow()][pos.getColumn()] = Element.UNCOVERED_EMPTY;
     }
 
     @Override
