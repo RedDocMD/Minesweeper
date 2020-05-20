@@ -9,6 +9,7 @@ public class MinesweeperFrame extends JFrame {
     private final MinesweeperBoard board;
 
     public MinesweeperFrame(MinesweeperBoardData data) {
+        super();
         this.board = new MinesweeperBoard(data);
         initComponents();
     }

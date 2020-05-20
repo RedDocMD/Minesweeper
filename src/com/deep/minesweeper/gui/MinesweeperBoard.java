@@ -3,11 +3,12 @@ package com.deep.minesweeper.gui;
 import com.deep.minesweeper.data.MinesweeperBoardData;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 public class MinesweeperBoard extends JPanel {
     private final MinesweeperBoardData boardData;
-    private final JButton[][] cells;
+    private final Cell[][] cells;
     private final JPanel backPanel;
     private final int rows;
     private final int columns;
@@ -17,7 +18,7 @@ public class MinesweeperBoard extends JPanel {
         this.boardData = boardData;
         this.rows = boardData.getRows();
         this.columns = boardData.getColumns();
-        this.cells = new JButton[rows][columns];
+        this.cells = new Cell[rows][columns];
         this.backPanel = new JPanel();
         initComponent();
     }
@@ -27,7 +28,9 @@ public class MinesweeperBoard extends JPanel {
         backPanel.setLayout(new GridLayout(rows, columns));
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
-                cells[i][j] = new JButton("1");
+                cells[i][j] = new Cell(i, j);
+                var border = BorderFactory.createBevelBorder(BevelBorder.RAISED);
+                cells[i][j].setBorder(border);
                 backPanel.add(cells[i][j]);
             }
         }
