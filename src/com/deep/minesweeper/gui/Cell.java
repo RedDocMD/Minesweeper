@@ -3,7 +3,6 @@ package com.deep.minesweeper.gui;
 import com.deep.minesweeper.data.MinesweeperBoardData;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
 
@@ -13,8 +12,8 @@ public class Cell extends JPanel {
     private final MinesweeperBoardData boardData;
     private static final int DEFAULT_WIDTH = 50;
     private static final int DEFAULT_HEIGHT = 50;
-    private static final Border COVERED_BORDER = BorderFactory.createBevelBorder(BevelBorder.RAISED);
-    private static final Border UNCOVERED_BORDER = BorderFactory.createEmptyBorder();
+    private static final Border COVERED_BORDER = BorderFactory.createRaisedBevelBorder();
+    private static final Border UNCOVERED_BORDER = BorderFactory.createLoweredBevelBorder();
 
     public Cell(int row, int column, MinesweeperBoardData boardData) {
         this.row = row;

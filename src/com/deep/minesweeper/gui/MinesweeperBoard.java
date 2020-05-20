@@ -3,12 +3,10 @@ package com.deep.minesweeper.gui;
 import com.deep.minesweeper.data.MinesweeperBoardData;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.im.spi.InputMethod;
 
 public class MinesweeperBoard extends JPanel {
     private final MinesweeperBoardData boardData;
@@ -37,15 +35,11 @@ public class MinesweeperBoard extends JPanel {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         var cell = (Cell) e.getComponent();
-                        System.out.println("Hello");
-                        System.out.println(e.getModifiersEx());
-                        System.out.println(InputEvent.getModifiersExText(e.getModifiersEx()));
-                        if ((e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) != 0) {
-                            // Left click
-                            System.out.println("Hi");
+                        if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
+                            // Click with no Ctrl
                             boardData.uncoverCell(cell.getRow(), cell.getColumn());
-                            cell.computeCellState();
-                            System.out.println(cell.getBorder());
+                            cell.computeCellState(); // TODO: This will have to be fixed
+                            // TODO: Update panel labels and uncover propagation
                         }
                     }
                 });
