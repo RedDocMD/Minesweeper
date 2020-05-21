@@ -13,6 +13,7 @@ public class Cell extends JPanel {
     private final JLabel label;
 
     private boolean drawMine;
+    private boolean drawFlag;
 
     private static final int DEFAULT_WIDTH = 30;
     private static final int DEFAULT_HEIGHT = 30;
@@ -30,6 +31,7 @@ public class Cell extends JPanel {
             Color.MAGENTA // 8
     };
     private static final String MINE_IMAGE_PATH = "resources/mine.png";
+    private static final String FLAG_IMAGE_PATH = "resources/flag.png";
 
     public Cell(int row, int column, MinesweeperBoardData boardData) {
         this.row = row;
@@ -37,6 +39,7 @@ public class Cell extends JPanel {
         this.boardData = boardData;
         this.label = new JLabel("", JLabel.CENTER);
         this.drawMine = false;
+        this.drawFlag = false;
         initComponent();
     }
 
@@ -62,6 +65,7 @@ public class Cell extends JPanel {
             setBorder(UNCOVERED_BORDER);
             if (state == MinesweeperBoardData.Element.UNCOVERED_EMPTY) {
                 drawMine = false;
+                drawFlag = false;
                 var value = boardData.getMineCount(row, column);
                 if (value != 0) {
                     label.setText(value + "");
@@ -69,8 +73,12 @@ public class Cell extends JPanel {
                 } else {
                     label.setText("");
                 }
+            } else if (state == MinesweeperBoardData.Element.FLAGGED) {
+                drawFlag = true;
+                drawMine = false;
             } else {
                 drawMine = true;
+                drawFlag = false;
             }
         }
     }
@@ -79,6 +87,8 @@ public class Cell extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (drawMine)
-            g.drawImage(new ImageIcon("resources/mine.png").getImage(), 5, 0, null);
+            g.drawImage(new ImageIcon(MINE_IMAGE_PATH).getImage(), 5, 0, null);
+        if (drawFlag)
+            g.drawImage(new ImageIcon(FLAG_IMAGE_PATH).getImage(), 0, 2, null);
     }
 }

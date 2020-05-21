@@ -8,6 +8,7 @@ public class MinesweeperBoardData {
     private final int totalMines;
     private final Element[][] board;
     private final int[][] counterBoard;
+    private final Set<Position> flagged;
     
     private boolean gameEnded;
     
@@ -20,6 +21,7 @@ public class MinesweeperBoardData {
         this.board = new Element[rows][columns];
         this.counterBoard = new int[rows][columns];
         this.gameEnded = false;
+        this.flagged = new HashSet<>();
         initializeBoard();
     }
 
@@ -36,7 +38,7 @@ public class MinesweeperBoardData {
     }
 
     public enum Element {
-        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY
+        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED
     }
 
     public List<Position> getNeighbours(int row, int column) {
@@ -96,6 +98,13 @@ public class MinesweeperBoardData {
         if (row < 0 || column < 0 || row >= rows || column >= columns)
             throw new IllegalArgumentException("Invalid position: Position outside board");
         return board[row][column];
+    }
+
+    public void flagCell(int row, int column) {
+        if (row < 0 || column < 0 || row >= rows || column >= columns)
+            throw new IllegalArgumentException("Invalid position: Position outside board");
+        board[row][column] = Element.FLAGGED;
+        flagged.add(new Position(row, column));
     }
 
     public boolean isGameEnded() {
