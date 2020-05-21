@@ -107,6 +107,10 @@ public class MinesweeperBoardData {
         flagged.add(new Position(row, column));
     }
 
+    public int getFlaggedCount() {
+        return flagged.size();
+    }
+
     public boolean isGameEnded() {
         return gameEnded;
     }

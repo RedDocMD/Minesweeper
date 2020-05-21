@@ -10,14 +10,16 @@ import java.awt.event.MouseEvent;
 
 public class MinesweeperBoard extends JPanel {
     private final MinesweeperBoardData boardData;
+    private final MinesweeperFrame parent;
     private final Cell[][] cells;
     private final JPanel backPanel;
     private final int rows;
     private final int columns;
 
-    public MinesweeperBoard(MinesweeperBoardData boardData) {
+    public MinesweeperBoard(MinesweeperBoardData boardData, MinesweeperFrame parent) {
         super();
         this.boardData = boardData;
+        this.parent = parent;
         this.rows = boardData.getRows();
         this.columns = boardData.getColumns();
         this.cells = new Cell[rows][columns];
@@ -41,6 +43,7 @@ public class MinesweeperBoard extends JPanel {
                         } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
                             // Click with Ctrl
                             boardData.flagCell(cell.getRow(), cell.getColumn());
+                            parent.updateFlagged();
                         }
                         recomputeCellsState();
                     }
