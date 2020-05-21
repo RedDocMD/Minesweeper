@@ -8,6 +8,9 @@ public class MinesweeperBoardData {
     private final int totalMines;
     private final Element[][] board;
     private final int[][] counterBoard;
+    
+    private boolean gameEnded;
+    
     private static final int MINE_VALUE = -1;
 
     public MinesweeperBoardData(int rows, int columns, int totalMines) {
@@ -16,6 +19,7 @@ public class MinesweeperBoardData {
         this.totalMines = totalMines;
         this.board = new Element[rows][columns];
         this.counterBoard = new int[rows][columns];
+        this.gameEnded = false;
         initializeBoard();
     }
 
@@ -94,6 +98,10 @@ public class MinesweeperBoardData {
         return board[row][column];
     }
 
+    public boolean isGameEnded() {
+        return gameEnded;
+    }
+
     public void uncoverCell(int row, int column) {
         if (row < 0 || column < 0 || row >= rows || column >= columns)
             throw new IllegalArgumentException("Invalid position: Position outside board");
@@ -101,7 +109,14 @@ public class MinesweeperBoardData {
             board[row][column] = Element.UNCOVERED_EMPTY;
             recursivelyUncover(new Position(row, column), new HashSet<>());
         }
-        else if (board[row][column] == Element.COVERED_MINE) board[row][column] = Element.UNCOVERED_MINE;
+        else if (board[row][column] == Element.COVERED_MINE) {
+            gameEnded = true;
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
+                    if (board[i][j] == Element.COVERED_MINE) board[i][j] = Element.UNCOVERED_MINE;
+                }
+            }
+        }
     }
 
     private void recursivelyUncover(Position pos, Set<Position> done) {
