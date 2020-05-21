@@ -41,6 +41,12 @@ public class MinesweeperFrame extends JFrame {
     }
 
     private void initComponents() {
+        resetButton.addActionListener(e -> {
+            data.resetBoard();
+            board.recomputeCellsState();
+            updateFlagged();
+        });
+
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(startButton);
         buttonPanel.add(playButton);

@@ -61,6 +61,9 @@ public class Cell extends JPanel {
         var state = boardData.getMineState(row, column);
         if (state == MinesweeperBoardData.Element.COVERED_EMPTY || state == MinesweeperBoardData.Element.COVERED_MINE) {
             setBorder(COVERED_BORDER);
+            label.setText("");
+            drawMine = false;
+            drawFlag = false;
         } else {
             setBorder(UNCOVERED_BORDER);
             if (state == MinesweeperBoardData.Element.UNCOVERED_EMPTY) {

@@ -88,6 +88,12 @@ public class MinesweeperBoardData {
         }
     }
 
+    public void resetBoard() {
+        initializeBoard();
+        flagged.clear();
+        gameEnded = false;
+    }
+
     public int getMineCount(int row, int column) {
         if (row < 0 || column < 0 || row >= rows || column >= columns)
             throw new IllegalArgumentException("Invalid position: Position outside board");
