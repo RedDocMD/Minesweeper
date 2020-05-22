@@ -20,6 +20,9 @@ public class MinesweeperFrame extends JFrame {
 
     private static final String ICON_PATH = "resources/minesweeper.png";
 
+    private boolean aiPlaying;
+    private boolean humanPlaying;
+
     public MinesweeperFrame(MinesweeperBoardData data) {
         super();
         this.board = new MinesweeperBoard(data, this);
@@ -33,7 +36,17 @@ public class MinesweeperFrame extends JFrame {
         this.columnsLabel = new JLabel("Columns: " + data.getColumns());
         this.minesLabel = new JLabel("Mines: " + data.getTotalMines());
         this.flaggedLabel = new JLabel("Flagged: " + data.getFlaggedCount());
+        this.humanPlaying = false;
+        this.aiPlaying = false;
         initComponents();
+    }
+
+    public boolean isAiPlaying() {
+        return aiPlaying;
+    }
+
+    public boolean isHumanPlaying() {
+        return humanPlaying;
     }
 
     public void updateFlagged() {
@@ -45,6 +58,24 @@ public class MinesweeperFrame extends JFrame {
             data.resetBoard();
             board.recomputeCellsState();
             updateFlagged();
+            playButton.setEnabled(true);
+            startButton.setEnabled(true);
+            aiPlaying = false;
+            humanPlaying = false;
+        });
+
+        playButton.addActionListener(e -> {
+            humanPlaying = true;
+            aiPlaying = false;
+            startButton.setEnabled(false);
+            playButton.setEnabled(false);
+        });
+
+        startButton.addActionListener(e -> {
+            aiPlaying = true;
+            humanPlaying = false;
+            startButton.setEnabled(false);
+            playButton.setEnabled(false);
         });
 
         buttonPanel.setLayout(new FlowLayout());

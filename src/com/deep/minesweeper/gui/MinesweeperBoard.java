@@ -36,16 +36,21 @@ public class MinesweeperBoard extends JPanel {
                 cells[i][j].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        var cell = (Cell) e.getComponent();
-                        if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
-                            // Click with no Ctrl
-                            boardData.uncoverCell(cell.getRow(), cell.getColumn());
-                        } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
-                            // Click with Ctrl
-                            boardData.flagCell(cell.getRow(), cell.getColumn());
-                            parent.updateFlagged();
+                        if (!boardData.isGameEnded() && parent.isHumanPlaying()) {
+                            var cell = (Cell) e.getComponent();
+                            if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
+                                // Click with no Ctrl
+                                boardData.uncoverCell(cell.getRow(), cell.getColumn());
+                            } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+                                // Click with Ctrl
+                                boardData.flagCell(cell.getRow(), cell.getColumn());
+                                parent.updateFlagged();
+                            }
+                            recomputeCellsState();
+                        } else if (boardData.isGameEnded()) {
+                            JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
+                                    "Game over", JOptionPane.INFORMATION_MESSAGE);
                         }
-                        recomputeCellsState();
                     }
                 });
                 backPanel.add(cells[i][j]);
