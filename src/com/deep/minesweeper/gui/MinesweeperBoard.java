@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.logging.Logger;
 
 public class MinesweeperBoard extends JPanel {
     private final MinesweeperBoardData boardData;
@@ -36,21 +37,34 @@ public class MinesweeperBoard extends JPanel {
                 cells[i][j].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        if (!boardData.isGameEnded() && parent.isHumanPlaying()) {
-                            var cell = (Cell) e.getComponent();
-                            if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
-                                // Click with no Ctrl
-                                boardData.uncoverCell(cell.getRow(), cell.getColumn());
-                            } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
-                                // Click with Ctrl
-                                boardData.flagCell(cell.getRow(), cell.getColumn());
-                                parent.updateFlagged();
+                        if (e.getClickCount() == 1) {
+                            if (!boardData.isGameEnded() && parent.isHumanPlaying()) {
+                                var cell = (Cell) e.getComponent();
+                                if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == 0) {
+                                    // Click with no Ctrl
+                                    boardData.uncoverCell(cell.getRow(), cell.getColumn());
+                                } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+                                    // Click with Ctrl
+                                    boardData.flagCell(cell.getRow(), cell.getColumn());
+                                    parent.updateFlagged();
+                                }
+                                recomputeCellsState();
+                            } else if (boardData.isGameEnded()) {
+                                JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
+                                        "Game over", JOptionPane.INFORMATION_MESSAGE);
                             }
-                            recomputeCellsState();
-                        } else if (boardData.isGameEnded()) {
-                            JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
-                                    "Game over", JOptionPane.INFORMATION_MESSAGE);
+                        } else if (e.getClickCount() >= 2) {
+                            if (!boardData.isGameEnded() && parent.isHumanPlaying()) {
+                                var cell = (Cell) e.getComponent();
+                                Logger.getGlobal().info("Double clicked: " + cell.getPosition());
+                                boardData.uncoverNeighbours(cell.getPosition());
+                                recomputeCellsState();
+                            } else if (boardData.isGameEnded()) {
+                                JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
+                                        "Game over", JOptionPane.INFORMATION_MESSAGE);
+                            }
                         }
+
                     }
                 });
                 backPanel.add(cells[i][j]);

@@ -1,18 +1,20 @@
 package com.deep.minesweeper.data;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+import java.util.logging.Logger;
 
 public class MinesweeperBoardData {
+    private static final int MINE_VALUE = -1;
     private final int columns;
     private final int rows;
     private final int totalMines;
     private final Element[][] board;
     private final int[][] counterBoard;
     private final Set<Position> flagged;
-    
+    private final Set<Position> mines;
     private boolean gameEnded;
-    
-    private static final int MINE_VALUE = -1;
 
     public MinesweeperBoardData(int rows, int columns, int totalMines) {
         this.columns = columns;
@@ -22,6 +24,7 @@ public class MinesweeperBoardData {
         this.counterBoard = new int[rows][columns];
         this.gameEnded = false;
         this.flagged = new HashSet<>();
+        this.mines = new HashSet<>();
         initializeBoard();
     }
 
@@ -37,14 +40,10 @@ public class MinesweeperBoardData {
         return totalMines;
     }
 
-    public enum Element {
-        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED
-    }
-
-    public List<Position> getNeighbours(int row, int column) {
-        var neighbours = new ArrayList<Position>();
+    public Set<Position> getNeighbours(int row, int column) {
+        var neighbours = new HashSet<Position>();
         final int[] rowAdjustments = {-1, 0, 1};
-        final int[] columnAdjustments = {-1, 0 , 1};
+        final int[] columnAdjustments = {-1, 0, 1};
         for (var rowAdj : rowAdjustments) {
             for (var columnAdj : columnAdjustments) {
                 if (rowAdj == 0 && columnAdj == 0) continue;
@@ -57,7 +56,7 @@ public class MinesweeperBoardData {
         return neighbours;
     }
 
-    public List<Position> getNeighbours(Position pos) {
+    public Set<Position> getNeighbours(Position pos) {
         return getNeighbours(pos.getRow(), pos.getColumn());
     }
 
@@ -70,12 +69,13 @@ public class MinesweeperBoardData {
         }
         final int maxCount = rows * columns;
         var generator = new Random();
-        for (var i = 0; i < totalMines;) {
+        for (var i = 0; i < totalMines; ) {
             var mineIndex = generator.nextInt(maxCount);
             var mineRow = mineIndex / columns;
             var mineColumn = mineIndex % columns;
             if (board[mineRow][mineColumn] == Element.COVERED_EMPTY) {
                 board[mineRow][mineColumn] = Element.COVERED_MINE;
+                mines.add(new Position(mineRow, mineColumn));
                 ++i;
                 var neighbours = getNeighbours(mineRow, mineColumn);
                 counterBoard[mineRow][mineColumn] = MINE_VALUE;
@@ -89,6 +89,7 @@ public class MinesweeperBoardData {
     }
 
     public void resetBoard() {
+        mines.clear();
         initializeBoard();
         flagged.clear();
         gameEnded = false;
@@ -127,13 +128,16 @@ public class MinesweeperBoardData {
         if (board[row][column] == Element.COVERED_EMPTY) {
             board[row][column] = Element.UNCOVERED_EMPTY;
             recursivelyUncover(new Position(row, column), new HashSet<>());
+        } else if (board[row][column] == Element.COVERED_MINE) {
+            uncoverAllMines();
         }
-        else if (board[row][column] == Element.COVERED_MINE) {
-            gameEnded = true;
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < columns; j++) {
-                    if (board[i][j] == Element.COVERED_MINE) board[i][j] = Element.UNCOVERED_MINE;
-                }
+    }
+
+    private void uncoverAllMines() {
+        gameEnded = true;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (board[i][j] == Element.COVERED_MINE) board[i][j] = Element.UNCOVERED_MINE;
             }
         }
     }
@@ -149,6 +153,33 @@ public class MinesweeperBoardData {
         board[pos.getRow()][pos.getColumn()] = Element.UNCOVERED_EMPTY;
     }
 
+    public void uncoverNeighbours(int row, int column) {
+        var neighbours = getNeighbours(row, column);
+        var mineNeighbours = new HashSet<>(neighbours);
+        mineNeighbours.retainAll(mines);
+        var flaggedNeighbours = new HashSet<>(neighbours);
+        flaggedNeighbours.retainAll(flagged);
+        Logger.getGlobal().info("Flagged neighbours: " + flaggedNeighbours);
+        Logger.getGlobal().info("Mine neighbours: " + mineNeighbours);
+        if (mineNeighbours.equals(flaggedNeighbours)) {
+            var uncoverNeighbours = new HashSet<>(neighbours);
+            uncoverNeighbours.removeAll(flaggedNeighbours);
+            for (var cell : uncoverNeighbours) {
+                board[cell.getRow()][cell.getColumn()] = Element.UNCOVERED_EMPTY;
+            }
+        } else if (mineNeighbours.isEmpty()) {
+            for (var cell : neighbours) {
+                board[cell.getRow()][cell.getColumn()] = Element.UNCOVERED_EMPTY;
+            }
+        } else if (!flaggedNeighbours.isEmpty()) {
+            uncoverAllMines();
+        }
+    }
+
+    public void uncoverNeighbours(Position cell) {
+        uncoverNeighbours(cell.getRow(), cell.getColumn());
+    }
+
     @Override
     public String toString() {
         var out = new StringBuilder();
@@ -159,5 +190,9 @@ public class MinesweeperBoardData {
             out.append('\n');
         }
         return out.toString();
+    }
+
+    public enum Element {
+        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED
     }
 }
