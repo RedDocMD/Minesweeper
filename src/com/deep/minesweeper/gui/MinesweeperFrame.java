@@ -4,6 +4,7 @@ import com.deep.minesweeper.data.MinesweeperBoardData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Logger;
 
 public class MinesweeperFrame extends JFrame {
     private final MinesweeperBoard board;
@@ -62,6 +63,7 @@ public class MinesweeperFrame extends JFrame {
             startButton.setEnabled(true);
             aiPlaying = false;
             humanPlaying = false;
+            Logger.getGlobal().info("\n" + data.toString());
         });
 
         playButton.addActionListener(e -> {
