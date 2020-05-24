@@ -14,7 +14,7 @@ public class MinesweeperBoardData {
     private final int[][] counterBoard;
     private final Set<Position> flagged;
     private final Set<Position> mines;
-    private boolean gameEnded;
+    private GameState state;
 
     public MinesweeperBoardData(int rows, int columns, int totalMines) {
         this.columns = columns;
@@ -22,9 +22,9 @@ public class MinesweeperBoardData {
         this.totalMines = totalMines;
         this.board = new Element[rows][columns];
         this.counterBoard = new int[rows][columns];
-        this.gameEnded = false;
         this.flagged = new HashSet<>();
         this.mines = new HashSet<>();
+        this.state = GameState.IN_PLAY;
         initializeBoard();
     }
 
@@ -92,7 +92,11 @@ public class MinesweeperBoardData {
         mines.clear();
         initializeBoard();
         flagged.clear();
-        gameEnded = false;
+        state = GameState.IN_PLAY;
+    }
+
+    public GameState getGameState() {
+        return state;
     }
 
     public int getMineCount(int row, int column) {
@@ -112,6 +116,7 @@ public class MinesweeperBoardData {
             throw new IllegalArgumentException("Invalid position: Position outside board");
         board[row][column] = Element.FLAGGED;
         flagged.add(new Position(row, column));
+        if (flagged.equals(mines)) state = GameState.WON;
     }
 
     public int getFlaggedCount() {
@@ -119,7 +124,7 @@ public class MinesweeperBoardData {
     }
 
     public boolean isGameEnded() {
-        return gameEnded;
+        return state != GameState.IN_PLAY;
     }
 
     public void uncoverCell(int row, int column) {
@@ -134,7 +139,7 @@ public class MinesweeperBoardData {
     }
 
     private void uncoverAllMines() {
-        gameEnded = true;
+        state = GameState.LOST;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (board[i][j] == Element.COVERED_MINE) board[i][j] = Element.UNCOVERED_MINE;
@@ -194,5 +199,9 @@ public class MinesweeperBoardData {
 
     public enum Element {
         COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED
+    }
+
+    public enum GameState {
+        IN_PLAY, WON, LOST
     }
 }

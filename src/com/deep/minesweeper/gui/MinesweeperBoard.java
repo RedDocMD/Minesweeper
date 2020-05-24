@@ -49,9 +49,9 @@ public class MinesweeperBoard extends JPanel {
                                     parent.updateFlagged();
                                 }
                                 recomputeCellsState();
+                                announceGameEnd();
                             } else if (boardData.isGameEnded()) {
-                                JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
-                                        "Game over", JOptionPane.INFORMATION_MESSAGE);
+                                announceResetGame();
                             }
                         } else if (e.getClickCount() >= 2) {
                             if (!boardData.isGameEnded() && parent.isHumanPlaying()) {
@@ -59,9 +59,9 @@ public class MinesweeperBoard extends JPanel {
                                 Logger.getGlobal().info("Double clicked: " + cell.getPosition());
                                 boardData.uncoverNeighbours(cell.getPosition());
                                 recomputeCellsState();
+                                announceGameEnd();
                             } else if (boardData.isGameEnded()) {
-                                JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
-                                        "Game over", JOptionPane.INFORMATION_MESSAGE);
+                                announceResetGame();
                             }
                         }
 
@@ -71,6 +71,21 @@ public class MinesweeperBoard extends JPanel {
             }
         }
         add(backPanel);
+    }
+
+    private void announceGameEnd() {
+        var state = boardData.getGameState();
+        if (state == MinesweeperBoardData.GameState.WON)
+            JOptionPane.showMessageDialog(parent, "You have won!",
+                    "Game over", JOptionPane.INFORMATION_MESSAGE);
+        else if (state == MinesweeperBoardData.GameState.LOST)
+            JOptionPane.showMessageDialog(parent, "You have lost!",
+                    "Game over", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void announceResetGame() {
+        JOptionPane.showMessageDialog(parent, "The game is over!\nPress the Reset button to start again",
+                "Game over", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void recomputeCellsState() {
