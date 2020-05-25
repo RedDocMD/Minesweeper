@@ -138,6 +138,10 @@ public class MinesweeperBoardData {
         }
     }
 
+    public void uncoverCell(Position position) {
+        uncoverCell(position.getRow(), position.getColumn());
+    }
+
     private void uncoverAllMines() {
         state = GameState.LOST;
         for (int i = 0; i < rows; i++) {

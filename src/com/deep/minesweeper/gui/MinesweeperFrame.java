@@ -1,5 +1,6 @@
 package com.deep.minesweeper.gui;
 
+import com.deep.minesweeper.ai.MinesweeperAI;
 import com.deep.minesweeper.data.MinesweeperBoardData;
 
 import javax.swing.*;
@@ -9,8 +10,9 @@ import java.util.logging.Logger;
 public class MinesweeperFrame extends JFrame {
     private final MinesweeperBoard board;
     private final MinesweeperBoardData data;
+    private final MinesweeperAI ai;
     private final JPanel buttonPanel;
-    private final JButton startButton;
+    private final JButton aiButton;
     private final JButton playButton;
     private final JButton resetButton;
     private final JPanel infoPanel;
@@ -28,8 +30,9 @@ public class MinesweeperFrame extends JFrame {
         super();
         this.board = new MinesweeperBoard(data, this);
         this.data = data;
+        this.ai = new MinesweeperAI(data);
         this.buttonPanel = new JPanel();
-        this.startButton = new JButton("Start the AI");
+        this.aiButton = new JButton("AI make move");
         this.resetButton = new JButton("Reset Board");
         this.playButton = new JButton("Play game");
         this.infoPanel = new JPanel();
@@ -60,7 +63,7 @@ public class MinesweeperFrame extends JFrame {
             board.recomputeCellsState();
             updateFlagged();
             playButton.setEnabled(true);
-            startButton.setEnabled(true);
+            aiButton.setEnabled(true);
             aiPlaying = false;
             humanPlaying = false;
             Logger.getGlobal().info("\n" + data.toString());
@@ -69,19 +72,19 @@ public class MinesweeperFrame extends JFrame {
         playButton.addActionListener(e -> {
             humanPlaying = true;
             aiPlaying = false;
-            startButton.setEnabled(false);
+            aiButton.setEnabled(false);
             playButton.setEnabled(false);
         });
 
-        startButton.addActionListener(e -> {
+        aiButton.addActionListener(e -> {
             aiPlaying = true;
             humanPlaying = false;
-            startButton.setEnabled(false);
             playButton.setEnabled(false);
+            aiMakeMove();
         });
 
         buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(startButton);
+        buttonPanel.add(aiButton);
         buttonPanel.add(playButton);
         buttonPanel.add(resetButton);
 
@@ -100,5 +103,29 @@ public class MinesweeperFrame extends JFrame {
         setTitle("Minesweeper AI");
         setIconImage(new ImageIcon(ICON_PATH).getImage());
         pack();
+    }
+
+    private void aiMakeMove() {
+        ai.makeNextMove();
+        board.recomputeCellsState();
+        if (data.isGameEnded()) {
+            aiButton.setEnabled(false);
+            announceGameEnd();
+        }
+    }
+
+    public void announceGameEnd() {
+        var state = data.getGameState();
+        if (state == MinesweeperBoardData.GameState.WON)
+            JOptionPane.showMessageDialog(this, "You have won!",
+                    "Game over", JOptionPane.INFORMATION_MESSAGE);
+        else if (state == MinesweeperBoardData.GameState.LOST)
+            JOptionPane.showMessageDialog(this, "You have lost!",
+                    "Game over", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void announceResetGame() {
+        JOptionPane.showMessageDialog(this, "The game is over!\nPress the Reset button to start again",
+                "Game over", JOptionPane.INFORMATION_MESSAGE);
     }
 }
