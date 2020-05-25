@@ -9,7 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 
-public class MinesweeperBoard extends JPanel {
+public class MinesweeperPanel extends JPanel {
     private final MinesweeperBoardData boardData;
     private final MinesweeperFrame parent;
     private final Cell[][] cells;
@@ -17,7 +17,7 @@ public class MinesweeperBoard extends JPanel {
     private final int rows;
     private final int columns;
 
-    public MinesweeperBoard(MinesweeperBoardData boardData, MinesweeperFrame parent) {
+    public MinesweeperPanel(MinesweeperBoardData boardData, MinesweeperFrame parent) {
         super();
         this.boardData = boardData;
         this.parent = parent;
@@ -64,7 +64,7 @@ public class MinesweeperBoard extends JPanel {
                                 parent.announceResetGame();
                             }
                         }
-
+                        repaint();
                     }
                 });
                 backPanel.add(cells[i][j]);

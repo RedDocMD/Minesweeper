@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.logging.Logger;
 
 public class MinesweeperFrame extends JFrame {
-    private final MinesweeperBoard board;
+    private final MinesweeperPanel board;
     private final MinesweeperBoardData data;
     private final MinesweeperAI ai;
     private final JPanel buttonPanel;
@@ -28,7 +28,7 @@ public class MinesweeperFrame extends JFrame {
 
     public MinesweeperFrame(MinesweeperBoardData data) {
         super();
-        this.board = new MinesweeperBoard(data, this);
+        this.board = new MinesweeperPanel(data, this);
         this.data = data;
         this.ai = new MinesweeperAI(data);
         this.buttonPanel = new JPanel();
@@ -108,6 +108,7 @@ public class MinesweeperFrame extends JFrame {
     private void aiMakeMove() {
         ai.makeMove();
         board.recomputeCellsState();
+        updateFlagged();
         if (data.isGameEnded()) {
             aiButton.setEnabled(false);
             announceGameEnd();

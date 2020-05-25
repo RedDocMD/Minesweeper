@@ -154,9 +154,12 @@ public class MinesweeperBoardData {
         state = GameState.LOST;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                if (board[i][j] == Element.COVERED_MINE) board[i][j] = Element.UNCOVERED_MINE;
+                if (board[i][j] == Element.COVERED_MINE) {
+                    board[i][j] = Element.UNCOVERED_MINE;
+                }
             }
         }
+        markWronglyFlagged();
     }
 
     private void recursivelyUncover(Position pos, Set<Position> done) {
@@ -200,11 +203,24 @@ public class MinesweeperBoardData {
                 if (board[i][j] == Element.UNCOVERED_EMPTY) uncovered.add(new Position(i, j));
             }
         }
-        return  uncovered;
+        return uncovered;
     }
 
     public void uncoverNeighbours(Position cell) {
         uncoverNeighbours(cell.getRow(), cell.getColumn());
+    }
+
+    private void markWronglyFlagged() {
+        if (!isGameEnded()) return;
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < columns; j++) {
+                if (board[i][j] == Element.FLAGGED && counterBoard[i][j] != -1) {
+                    board[i][j] = Element.WRONGLY_FLAGGED;
+                    Logger.getGlobal().info("Wrongly flagged: " + i + " " + j);
+                    Logger.getGlobal().info("" + board[i][j]);
+                }
+            }
+        }
     }
 
     @Override
@@ -220,7 +236,7 @@ public class MinesweeperBoardData {
     }
 
     public enum Element {
-        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED
+        COVERED_MINE, COVERED_EMPTY, UNCOVERED_MINE, UNCOVERED_EMPTY, FLAGGED, WRONGLY_FLAGGED
     }
 
     public enum GameState {

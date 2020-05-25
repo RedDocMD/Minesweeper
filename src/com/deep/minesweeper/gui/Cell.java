@@ -6,6 +6,7 @@ import com.deep.minesweeper.data.Position;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.util.logging.Logger;
 
 public class Cell extends JPanel {
     private static final int DEFAULT_WIDTH = 30;
@@ -25,12 +26,14 @@ public class Cell extends JPanel {
     };
     private static final String MINE_IMAGE_PATH = "resources/mine.png";
     private static final String FLAG_IMAGE_PATH = "resources/flag.png";
+    private static final String WRONG_FLAG_IMAGE_PATH = "resources/wrong_flag.png";
     private final int row;
     private final int column;
     private final MinesweeperBoardData boardData;
     private final JLabel label;
     private boolean drawMine;
     private boolean drawFlag;
+    private boolean drawWrongFlag;
 
     public Cell(int row, int column, MinesweeperBoardData boardData) {
         this.row = row;
@@ -39,6 +42,7 @@ public class Cell extends JPanel {
         this.label = new JLabel("", JLabel.CENTER);
         this.drawMine = false;
         this.drawFlag = false;
+        this.drawWrongFlag = false;
         initComponent();
     }
 
@@ -82,8 +86,14 @@ public class Cell extends JPanel {
             } else if (state == MinesweeperBoardData.Element.FLAGGED) {
                 drawFlag = true;
                 drawMine = false;
-            } else {
+                drawWrongFlag = false;
+            } else if (state == MinesweeperBoardData.Element.UNCOVERED_MINE) {
                 drawMine = true;
+                drawFlag = false;
+                drawWrongFlag  = false;
+            } else if (state == MinesweeperBoardData.Element.WRONGLY_FLAGGED) {
+                drawWrongFlag = true;
+                drawMine = false;
                 drawFlag = false;
             }
         }
@@ -94,7 +104,13 @@ public class Cell extends JPanel {
         super.paintComponent(g);
         if (drawMine)
             g.drawImage(new ImageIcon(MINE_IMAGE_PATH).getImage(), 5, 0, null);
-        if (drawFlag)
+        if (drawFlag) {
+            Logger.getGlobal().info(FLAG_IMAGE_PATH);
             g.drawImage(new ImageIcon(FLAG_IMAGE_PATH).getImage(), 0, 2, null);
+        }
+        if (drawWrongFlag) {
+            Logger.getGlobal().info(WRONG_FLAG_IMAGE_PATH);
+            g.drawImage(new ImageIcon(WRONG_FLAG_IMAGE_PATH).getImage(), 0, 2, null);
+        }
     }
 }
