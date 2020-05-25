@@ -181,6 +181,16 @@ public class MinesweeperBoardData {
         }
     }
 
+    public Set<Position> getUncovered() {
+        var uncovered = new HashSet<Position>();
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < columns; j++) {
+                if (board[i][j] == Element.UNCOVERED_EMPTY) uncovered.add(new Position(i, j));
+            }
+        }
+        return  uncovered;
+    }
+
     public void uncoverNeighbours(Position cell) {
         uncoverNeighbours(cell.getRow(), cell.getColumn());
     }
@@ -190,7 +200,7 @@ public class MinesweeperBoardData {
         var out = new StringBuilder();
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
-                out.append(counterBoard[i][j]).append(" ");
+                out.append(String.format("%2d", counterBoard[i][j])).append(" ");
             }
             out.append('\n');
         }
