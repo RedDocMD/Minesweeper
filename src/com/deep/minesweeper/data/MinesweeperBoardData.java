@@ -105,6 +105,10 @@ public class MinesweeperBoardData {
         return counterBoard[row][column];
     }
 
+    public int getMineCount(Position position) {
+        return getMineCount(position.getRow(), position.getColumn());
+    }
+
     public Element getMineState(int row, int column) {
         if (row < 0 || column < 0 || row >= rows || column >= columns)
             throw new IllegalArgumentException("Invalid position: Position outside board");
@@ -117,6 +121,10 @@ public class MinesweeperBoardData {
         board[row][column] = Element.FLAGGED;
         flagged.add(new Position(row, column));
         if (flagged.equals(mines)) state = GameState.WON;
+    }
+
+    public void flagCell(Position position) {
+        flagCell(position.getRow(), position.getColumn());
     }
 
     public int getFlaggedCount() {

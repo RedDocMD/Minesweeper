@@ -106,7 +106,7 @@ public class MinesweeperFrame extends JFrame {
     }
 
     private void aiMakeMove() {
-        ai.makeNextMove();
+        ai.makeMove();
         board.recomputeCellsState();
         if (data.isGameEnded()) {
             aiButton.setEnabled(false);
