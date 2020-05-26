@@ -16,10 +16,10 @@ public class MinesweeperBoardData {
     private final Set<Position> mines;
     private GameState state;
 
-    public MinesweeperBoardData(int rows, int columns, int totalMines) {
-        this.columns = columns;
-        this.rows = rows;
-        this.totalMines = totalMines;
+    public MinesweeperBoardData(GameLevel level) {
+        this.columns = level.getColumns();
+        this.rows = level.getRows();
+        this.totalMines = level.getMines();
         this.board = new Element[rows][columns];
         this.counterBoard = new int[rows][columns];
         this.flagged = new HashSet<>();
