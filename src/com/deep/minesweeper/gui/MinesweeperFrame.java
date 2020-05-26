@@ -2,19 +2,24 @@ package com.deep.minesweeper.gui;
 
 import com.deep.minesweeper.ai.MinesweeperAI;
 import com.deep.minesweeper.data.MinesweeperBoardData;
+import com.deep.minesweeper.data.SimulationResult;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MinesweeperFrame extends JFrame {
     private final MinesweeperPanel board;
     private final MinesweeperBoardData data;
     private final MinesweeperAI ai;
+    private final JPanel humanPanel;
+    private final JPanel aiPanel;
     private final JPanel buttonPanel;
     private final JButton aiButton;
     private final JButton playButton;
     private final JButton resetButton;
+    private final JButton simulateButton;
     private final JPanel infoPanel;
     private final JLabel rowsLabel;
     private final JLabel columnsLabel;
@@ -31,10 +36,13 @@ public class MinesweeperFrame extends JFrame {
         this.board = new MinesweeperPanel(data, this);
         this.data = data;
         this.ai = new MinesweeperAI(data);
+        this.humanPanel = new JPanel();
+        this.aiPanel = new JPanel();
         this.buttonPanel = new JPanel();
         this.aiButton = new JButton("AI make move");
         this.resetButton = new JButton("Reset Board");
         this.playButton = new JButton("Play game");
+        this.simulateButton = new JButton("Simulate game");
         this.infoPanel = new JPanel();
         this.rowsLabel = new JLabel("Rows: " + data.getRows());
         this.columnsLabel = new JLabel("Columns: " + data.getColumns());
@@ -59,14 +67,7 @@ public class MinesweeperFrame extends JFrame {
 
     private void initComponents() {
         resetButton.addActionListener(e -> {
-            data.resetBoard();
-            board.recomputeCellsState();
-            updateFlagged();
-            playButton.setEnabled(true);
-            aiButton.setEnabled(true);
-            aiPlaying = false;
-            humanPlaying = false;
-            ai.reset();
+            resetGame();
             Logger.getGlobal().info("\n" + data.toString());
         });
 
@@ -75,19 +76,36 @@ public class MinesweeperFrame extends JFrame {
             aiPlaying = false;
             aiButton.setEnabled(false);
             playButton.setEnabled(false);
+            simulateButton.setEnabled(false);
         });
 
         aiButton.addActionListener(e -> {
             aiPlaying = true;
             humanPlaying = false;
             playButton.setEnabled(false);
+            simulateButton.setEnabled(false);
             aiMakeMove();
         });
 
-        buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(aiButton);
-        buttonPanel.add(playButton);
-        buttonPanel.add(resetButton);
+        simulateButton.addActionListener(e -> {
+            Logger.getGlobal().setLevel(Level.OFF);
+            final int DEFAULT_GAMES = 10;
+            var result = runSimulation(DEFAULT_GAMES);
+            showResult(result);
+            Logger.getGlobal().setLevel(Level.INFO);
+        });
+
+        aiPanel.setLayout(new FlowLayout());
+        aiPanel.add(aiButton);
+        aiPanel.add(simulateButton);
+
+        humanPanel.setLayout(new FlowLayout());
+        humanPanel.add(playButton);
+        humanPanel.add(resetButton);
+
+        buttonPanel.setLayout(new BorderLayout());
+        buttonPanel.add(humanPanel, BorderLayout.NORTH);
+        buttonPanel.add(aiPanel, BorderLayout.SOUTH);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -104,6 +122,36 @@ public class MinesweeperFrame extends JFrame {
         setTitle("Minesweeper AI");
         setIconImage(new ImageIcon(ICON_PATH).getImage());
         pack();
+    }
+
+    private void resetGame() {
+        data.resetBoard();
+        board.recomputeCellsState();
+        updateFlagged();
+        playButton.setEnabled(true);
+        aiButton.setEnabled(true);
+        simulateButton.setEnabled(true);
+        aiPlaying = false;
+        humanPlaying = false;
+        ai.reset();
+    }
+
+    private SimulationResult runSimulation(int games) {
+        int roundCount = 0;
+        int winCount = 0;
+        for (var i = 0; i < games; i++) {
+            while (!data.isGameEnded()) {
+                ++roundCount;
+                ai.makeMove();
+            }
+            if (data.getGameState() == MinesweeperBoardData.GameState.WON) ++winCount;
+            resetGame();
+        }
+        return new SimulationResult(winCount, games, (double) roundCount / (double) games);
+    }
+
+    private void showResult(SimulationResult result) {
+        System.out.println(result.toString());
     }
 
     private void aiMakeMove() {
