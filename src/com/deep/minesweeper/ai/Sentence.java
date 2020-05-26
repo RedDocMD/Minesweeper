@@ -28,13 +28,17 @@ public class Sentence {
     }
 
     public void doSelfInference() {
-        if (mineCount == cells.size() - knownSafe.size()) {
+        if (mineCount == cells.size() - knownSafe.size() && mineCount != knownMine.size()) {
             knownMine.addAll(cells.stream()
                     .filter(c -> !knownSafe.contains(c))
                     .collect(Collectors.toSet()));
         }
         if (mineCount == 0) {
             knownSafe.addAll(cells);
+        }
+        if (mineCount == knownMine.size()) {
+            knownSafe.addAll(cells);
+            knownSafe.removeAll(knownMine);
         }
     }
 

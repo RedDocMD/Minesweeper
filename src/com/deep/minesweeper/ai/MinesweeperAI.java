@@ -82,6 +82,8 @@ public class MinesweeperAI {
     }
 
     private void doSelfInference(Sentence newSentence) {
+        newSentence.markSafes(knownSafe);
+        newSentence.markMines(knownMines);
         newSentence.doSelfInference();
         knownSafe.addAll(newSentence.getKnownSafe());
         knownMines.addAll(newSentence.getKnownMine());
