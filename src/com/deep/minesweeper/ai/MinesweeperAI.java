@@ -5,8 +5,10 @@ import com.deep.minesweeper.data.Position;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MinesweeperAI {
+    private static final int INFERENCE_CYCLE_LIMIT = 5;
     private final MinesweeperBoardData board;
     private final List<Sentence> sentences;
     private final Set<Position> knownMines;
@@ -20,7 +22,15 @@ public class MinesweeperAI {
         this.knownMines = new HashSet<>();
         this.knownSafe = new HashSet<>();
         this.generator = new Random();
-        this.uncovered = board.getUncovered();
+        this.uncovered = new HashSet<>();
+    }
+
+    public void reset() {
+        sentences.clear();
+        knownMines.clear();
+        knownSafe.clear();
+        uncovered.clear();
+        generator.setSeed(System.nanoTime());
     }
 
     public void makeMove() {
@@ -28,38 +38,71 @@ public class MinesweeperAI {
         Logger.getGlobal().info("Move: " + move);
         if (move != null) {
             board.uncoverCell(move);
-            updateData();
+            for (var i = 0; i < INFERENCE_CYCLE_LIMIT; i++) {
+                inferenceCycle();
+            }
+            var modifiedUncovered = board.getUncovered();
+            uncovered.addAll(modifiedUncovered);
+            flagAllMines();
         }
-        Logger.getGlobal().info(String.format("Mine count: %d Safe count: %d", knownMines.size(), knownSafe.size()));
+        Logger.getGlobal().info(String.format("Uncovered size: %d Mine count: %d Safe count: %d Sentences size: %d",
+                uncovered.size(),
+                knownMines.size(),
+                knownSafe.size(),
+                sentences.size()
+        ));
+    }
+
+    private void inferenceCycle() {
+        updateData();
+        updateSentences();
+        doMutualInference();
+        updateSentences();
     }
 
     private void updateData() {
         var modifiedUncovered = board.getUncovered();
         knownSafe.addAll(modifiedUncovered);
 
-        var uncoveredThisMove = new HashSet<>(modifiedUncovered);
-        uncoveredThisMove.removeAll(uncovered);
+        var uncoveredThisMove = modifiedUncovered.stream()
+                .filter(c -> !uncovered.contains(c))
+                .collect(Collectors.toSet());
 
         for (var move : uncoveredThisMove) {
             var neighbours = board.getNeighbours(move);
-            var safeNeighbours = new HashSet<>(neighbours);
-            safeNeighbours.retainAll(knownSafe);
-            var mineNeighbours = new HashSet<>(neighbours);
-            mineNeighbours.retainAll(knownMines);
+            var safeNeighbours = neighbours.stream()
+                    .filter(knownSafe::contains).collect(Collectors.toSet());
+            var mineNeighbours = neighbours.stream()
+                    .filter(knownMines::contains).collect(Collectors.toSet());
 
-            var newSentence = new Sentence(move, neighbours, board.getMineCount(move), safeNeighbours, mineNeighbours);
+            var newSentence = new Sentence(neighbours, board.getMineCount(move), safeNeighbours, mineNeighbours);
             sentences.add(newSentence);
-            doInference(newSentence);
+            doSelfInference(newSentence);
         }
-
-        uncovered.addAll(modifiedUncovered);
     }
 
-    private void doInference(Sentence newSentence) {
+    private void doSelfInference(Sentence newSentence) {
         newSentence.doSelfInference();
         knownSafe.addAll(newSentence.getKnownSafe());
         knownMines.addAll(newSentence.getKnownMine());
-        flagAllMines();
+    }
+
+    private void doMutualInference() {
+        var newSentences = new HashSet<Sentence>();
+        for (var sentenceA : sentences) {
+            for (var sentenceB : sentences) {
+                if (!sentenceA.equals(sentenceB)) {
+                    var newSentence = sentenceA.doMutualInference(sentenceB);
+                    if (newSentence != null) {
+                        newSentence.doSelfInference();
+                        newSentences.add(newSentence);
+                        knownMines.addAll(newSentence.getKnownMine());
+                        knownSafe.addAll(newSentence.getKnownSafe());
+                    }
+                }
+            }
+        }
+        sentences.addAll(newSentences);
     }
 
     private void flagAllMines() {
@@ -68,14 +111,27 @@ public class MinesweeperAI {
         }
     }
 
+    private void updateSentences() {
+        for (var sentence : sentences) {
+            sentence.markMines(knownMines);
+            sentence.markSafes(knownSafe);
+        }
+    }
+
     private Position getNextMove() {
         if (board.isGameEnded()) return null;
         var move = getSafeMove();
-        if (move != null) return move;
-        else return getRandomMove();
+        if (move != null) {
+            Logger.getGlobal().info("Making safe move");
+            return move;
+        } else {
+            Logger.getGlobal().info("Making random move");
+            return getRandomMove();
+        }
     }
 
     private Position getSafeMove() {
+        if (uncovered.equals(knownSafe)) return null;
         for (var move : knownSafe) {
             if (!uncovered.contains(move)) return move;
         }

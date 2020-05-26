@@ -105,11 +105,9 @@ public class Cell extends JPanel {
         if (drawMine)
             g.drawImage(new ImageIcon(MINE_IMAGE_PATH).getImage(), 5, 0, null);
         if (drawFlag) {
-            Logger.getGlobal().info(FLAG_IMAGE_PATH);
             g.drawImage(new ImageIcon(FLAG_IMAGE_PATH).getImage(), 0, 2, null);
         }
         if (drawWrongFlag) {
-            Logger.getGlobal().info(WRONG_FLAG_IMAGE_PATH);
             g.drawImage(new ImageIcon(WRONG_FLAG_IMAGE_PATH).getImage(), 0, 2, null);
         }
     }

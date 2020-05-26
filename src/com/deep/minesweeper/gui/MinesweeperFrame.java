@@ -66,6 +66,7 @@ public class MinesweeperFrame extends JFrame {
             aiButton.setEnabled(true);
             aiPlaying = false;
             humanPlaying = false;
+            ai.reset();
             Logger.getGlobal().info("\n" + data.toString());
         });
 
@@ -109,6 +110,7 @@ public class MinesweeperFrame extends JFrame {
         ai.makeMove();
         board.recomputeCellsState();
         updateFlagged();
+        repaint();
         if (data.isGameEnded()) {
             aiButton.setEnabled(false);
             announceGameEnd();
