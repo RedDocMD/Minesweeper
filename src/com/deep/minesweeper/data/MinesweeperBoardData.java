@@ -191,7 +191,7 @@ public class MinesweeperBoardData {
             for (var cell : neighbours) {
                 board[cell.getRow()][cell.getColumn()] = Element.UNCOVERED_EMPTY;
             }
-        } else if (!flaggedNeighbours.isEmpty()) {
+        } else if (!mineNeighbours.containsAll(flaggedNeighbours)) {
             uncoverAllMines();
         }
     }
